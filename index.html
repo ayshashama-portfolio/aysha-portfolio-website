@@ -1783,59 +1783,51 @@ button:hover, .btn:hover {
                     }, 500);
                 }, 500);
             });
-            // FINAL WORKING AJAX FORM SUBMISSION FOR NETLIFY
+            // Form submission (UPDATED FOR NETLIFY AJAX)
             $('form').submit(function(e) {
-                // Stop the page from reloading
-                e.preventDefault();
-
-                var $form = $(this);
+                e.preventDefault(); // Prevent default browser submission
                 
-                // 1. Get the form name from the hidden field
-                // This is CRITICAL for Netlify recognition
-                const formName = $form.find('input[name="form-name"]').val();
+                const $form = $(this);
+                const action = $form.attr('action'); // Get the form's action URL
                 
-                // 2. Prepare data for submission
+                // Get all form data, including Netlify hidden fields and honeypot
                 const formData = new FormData(this);
                 
-                // 3. Add the form-name field to the data (sometimes required for AJAX)
-                formData.append('form-name', formName); 
-
-                // 4. Use the URLSearchParams API to format the data correctly for Netlify
-                const data = new URLSearchParams(formData).toString();
-
-                // 5. Submit data to Netlify endpoint
-                fetch('/', { // Target the root URL '/'
+                // Show a temporary loading or processing state (optional)
+                $('.submit-btn').text('Sending...').prop('disabled', true);
+                
+                // Use fetch API to submit the form data to Netlify
+                fetch($form.attr('action'), {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: data
+                    body: formData
                 })
                 .then(response => {
+                    // Netlify returns a successful response for valid submission
                     if (response.ok) {
-                        // Success: Show the toast and reset form
-                        $('.toast').text('Message sent successfully!');
-                        $('.toast').addClass('active');
-                        setTimeout(function() {
-                            $('.toast').removeClass('active');
-                        }, 3000);
+                        // Success message
+                        $('.toast').css('background-color', 'var(--success)').text('Message sent successfully!');
                         
-                        this.reset();
+                        // Reset form fields
+                        $form[0].reset();
                     } else {
-                        // Error: Netlify rejected the form (e.g., failed captcha/honeypot, or field mismatch)
-                        $('.toast').text('Error sending message. Please check all fields and try again.');
-                        $('.toast').addClass('active');
-                        setTimeout(function() {
-                            $('.toast').removeClass('active');
-                        }, 3000);
+                        // Error message (e.g., Netlify spam/error filter caught something)
+                        return response.text().then(text => { throw new Error(text); });
                     }
                 })
                 .catch(error => {
-                    // Network Error
-                    $('.toast').text('Network error. Check your connection.');
+                    // Handle network or other errors
+                    console.error('Submission error:', error);
+                    $('.toast').css('background-color', 'red').text('Error sending message. Please try again.');
+                })
+                .finally(() => {
+                    // Restore the button state and show the toast notification
+                    $('.submit-btn').text('Send Message').prop('disabled', false);
+
                     $('.toast').addClass('active');
                     setTimeout(function() {
                         $('.toast').removeClass('active');
+                        // Reset to default success color for next submission
+                        $('.toast').css('background-color', 'var(--success)'); 
                     }, 3000);
                 });
             });
@@ -1844,6 +1836,7 @@ button:hover, .btn:hover {
 </body>
 
 </html>
+
 
 
 

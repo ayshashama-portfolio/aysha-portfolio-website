@@ -1783,32 +1783,8 @@ button:hover, .btn:hover {
                     }, 500);
                 }, 500);
             });
-            
-            // Form submission
-            $('form').submit(function(e) {
-                e.preventDefault();
-                
-                // Simulate form submission
-                var formData = {
-                    name: $('#name').val(),
-                    email: $('#email').val(),
-                    subject: $('#subject').val(),
-                    message: $('#message').val()
-                };
-                
-                console.log('Form submitted:', formData);
-                
-                // Reset form
-                this.reset();
-                
-                // Show success toast
-                $('.toast').text('Message sent successfully!');
-                $('.toast').addClass('active');
-                setTimeout(function() {
-                    $('.toast').removeClass('active');
-                }, 3000);
-            });
         });
     </script>
 </body>
+
 </html>

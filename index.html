@@ -1796,7 +1796,7 @@ button:hover, .btn:hover {
                 const data = new URLSearchParams(formData).toString();
 
                 // 3. Submit data to Netlify endpoint
-                fetch($form.attr('action') || '/', { // Added action fallback for safety
+                fetch('/', { // <-- Changed to explicitly use the root path
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded'
@@ -1836,4 +1836,5 @@ button:hover, .btn:hover {
 </body>
 
 </html>
+
 

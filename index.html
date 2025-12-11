@@ -1783,8 +1783,57 @@ button:hover, .btn:hover {
                     }, 500);
                 }, 500);
             });
+            // Function to handle form submission via AJAX for Netlify
+            $('form').submit(function(e) {
+                // 1. STOP the default browser submission
+                e.preventDefault();
+
+                // 2. Collect all form data (including hidden fields like form-name)
+                var $form = $(this);
+                var formData = new FormData(this);
+
+                // Convert form data to URL-encoded format Netlify expects for AJAX
+                const data = new URLSearchParams(formData).toString();
+
+                // 3. Submit data to Netlify endpoint
+                fetch($form.attr('action') || '/', { // Added action fallback for safety
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: data
+                })
+                .then(response => {
+                    if (response.ok) {
+                        // 4. Success: Show the toast, then reset the form
+                        $('.toast').text('Message sent successfully!');
+                        $('.toast').addClass('active');
+                        setTimeout(function() {
+                            $('.toast').removeClass('active');
+                        }, 3000);
+                        
+                        this.reset();
+                    } else {
+                        // Handle server errors
+                        $('.toast').text('Error sending message. Please try again.');
+                        $('.toast').addClass('active');
+                        setTimeout(function() {
+                            $('.toast').removeClass('active');
+                        }, 3000);
+                    }
+                })
+                .catch(error => {
+                    // Handle network errors
+                    $('.toast').text('Network error. Check your connection.');
+                    $('.toast').addClass('active');
+                    setTimeout(function() {
+                        $('.toast').removeClass('active');
+                    }, 3000);
+                });
+            });
         });
     </script>
 </body>
 
 </html>
+

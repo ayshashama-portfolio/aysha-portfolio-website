@@ -1783,20 +1783,28 @@ button:hover, .btn:hover {
                     }, 500);
                 }, 500);
             });
-            // Function to handle form submission via AJAX for Netlify
+            // FINAL WORKING AJAX FORM SUBMISSION FOR NETLIFY
             $('form').submit(function(e) {
-                // 1. STOP the default browser submission
+                // Stop the page from reloading
                 e.preventDefault();
 
-                // 2. Collect all form data (including hidden fields like form-name)
                 var $form = $(this);
-                var formData = new FormData(this);
+                
+                // 1. Get the form name from the hidden field
+                // This is CRITICAL for Netlify recognition
+                const formName = $form.find('input[name="form-name"]').val();
+                
+                // 2. Prepare data for submission
+                const formData = new FormData(this);
+                
+                // 3. Add the form-name field to the data (sometimes required for AJAX)
+                formData.append('form-name', formName); 
 
-                // Convert form data to URL-encoded format Netlify expects for AJAX
+                // 4. Use the URLSearchParams API to format the data correctly for Netlify
                 const data = new URLSearchParams(formData).toString();
 
-                // 3. Submit data to Netlify endpoint
-                fetch('/', { // <-- Changed to explicitly use the root path
+                // 5. Submit data to Netlify endpoint
+                fetch('/', { // Target the root URL '/'
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded'
@@ -1805,7 +1813,7 @@ button:hover, .btn:hover {
                 })
                 .then(response => {
                     if (response.ok) {
-                        // 4. Success: Show the toast, then reset the form
+                        // Success: Show the toast and reset form
                         $('.toast').text('Message sent successfully!');
                         $('.toast').addClass('active');
                         setTimeout(function() {
@@ -1814,8 +1822,8 @@ button:hover, .btn:hover {
                         
                         this.reset();
                     } else {
-                        // Handle server errors
-                        $('.toast').text('Error sending message. Please try again.');
+                        // Error: Netlify rejected the form (e.g., failed captcha/honeypot, or field mismatch)
+                        $('.toast').text('Error sending message. Please check all fields and try again.');
                         $('.toast').addClass('active');
                         setTimeout(function() {
                             $('.toast').removeClass('active');
@@ -1823,7 +1831,7 @@ button:hover, .btn:hover {
                     }
                 })
                 .catch(error => {
-                    // Handle network errors
+                    // Network Error
                     $('.toast').text('Network error. Check your connection.');
                     $('.toast').addClass('active');
                     setTimeout(function() {
@@ -1836,5 +1844,6 @@ button:hover, .btn:hover {
 </body>
 
 </html>
+
 
 
